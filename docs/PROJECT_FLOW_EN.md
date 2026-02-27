@@ -6,6 +6,7 @@ This project is a **Manual Visualizer Bridge** variant of PaperBanana:
 - Text stages (Retriever / Planner / Stylist / Critic) can be run manually or via Text API.
 - The Visualizer stage is manual: generate images with your own chat/agent model, then upload back.
 - The original multi-stage state machine and iterative loop are preserved.
+- It targets users who only have chat UI access, or APIs that support text but not image generation.
 
 ## 2. Credits and Upstream Links
 
@@ -15,21 +16,13 @@ This project is adapted from:
 
 Thanks to the original authors for the open-source multi-agent illustration framework.
 
-## 3. Release and Compliance Notes
-
-This repository keeps `LICENSE` (Apache-2.0). Before publishing to GitHub, make sure:
-1. Keep original license and copyright notices.
-2. Clearly state upstream sources in README/docs.
-3. Clearly state your modifications.
-4. Never commit private keys, private data, or unauthorized assets.
-
-## 4. Project Structure Diagram
+## 3. Project Structure Diagram
 
 The following figure is the overall workflow diagram you provided:
 
 ![Manual Visualizer Workflow](assets/visualizer_workflow_diagram.png)
 
-## 5. End-to-End Workflow
+## 4. End-to-End Workflow
 
 ### Stage Order
 
@@ -53,7 +46,7 @@ The following figure is the overall workflow diagram you provided:
    - upload image back to continue.
 5. Critic returns JSON (`critic_suggestions`, `revised_description`), then state machine enters next visualizer round.
 
-## 6. Quick Start
+## 5. Quick Start
 
 1. Install dependencies:
 
@@ -70,6 +63,7 @@ streamlit run tools/chat_bridge/web_app.py
 ```
 
 3. Dataset setup (same strategy as upstream):
+- download from: https://huggingface.co/datasets/dwzhu/PaperBananaBench
 - place `PaperBananaBench` under `data/PaperBananaBench/`.
 
 4. Optional: prepare embedded local gallery:
@@ -77,11 +71,3 @@ streamlit run tools/chat_bridge/web_app.py
 ```bash
 python scripts/prepare_reference_gallery.py
 ```
-
-## 7. Safety and Publishing Tips
-
-- Do not commit real API keys.
-- Keep `results/` clean (`.gitkeep` only).
-- Ensure `.gitignore` is effective before commit.
-- Keep source links and acknowledgements in public docs.
-- Reference gallery images are large. If you must commit them, prefer Git LFS.

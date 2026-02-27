@@ -1248,14 +1248,12 @@ def _submit_image_area(run_dir: Path) -> None:
                 f"image_size={opts.get('image_size', '')}, "
                 f"use_reference_images={bool(opts.get('use_reference_images', False))}, "
                 f"reference_input_mode={opts.get('reference_input_mode', 'agent')}, "
-                f"enforce_output_specs={bool(opts.get('enforce_output_specs', True))}, "
                 f"candidates_per_round={int(opts.get('candidates_per_round', 1) or 1)}"
             )
     except Exception:
         opts = {}
 
     candidates_expected = max(1, int(opts.get("candidates_per_round", 1) or 1))
-    enforce_specs = bool(opts.get("enforce_output_specs", True))
 
     if candidates_expected > 1:
         uploads = st.file_uploader(
@@ -1321,12 +1319,6 @@ def _submit_image_area(run_dir: Path) -> None:
                 f"Only {len(uploads)} candidate(s) uploaded, expected {candidates_expected}. "
                 "Proceeding with selected candidate."
             )
-        if spec_issues and enforce_specs:
-            st.error(
-                "Selected image does not satisfy visualizer output specs. "
-                "Please regenerate or disable strict enforcement in Run settings."
-            )
-            return
         uploads_dir = run_dir / "manual_uploads"
         uploads_dir.mkdir(parents=True, exist_ok=True)
         ext = Path(selected_upload.name).suffix or ".png"
@@ -1381,7 +1373,6 @@ def _init_run_panel() -> Path:
             "init_aspect_ratio": "16:9",
             "init_image_size": "1K",
             "init_visualizer_use_refs": False,
-            "init_visualizer_enforce_specs": True,
             "init_visualizer_candidates": 1,
         }.items():
             if k not in st.session_state:
@@ -1505,11 +1496,6 @@ def _init_run_panel() -> Path:
             "Prompt mode source: `Model Interaction Mode` above "
             f"(current: `{interaction_mode}`)."
         )
-        enforce_specs = st.checkbox(
-            "Enforce uploaded image aspect ratio/resolution",
-            value=bool(st.session_state.get("init_visualizer_enforce_specs", True)),
-            key="init_visualizer_enforce_specs",
-        )
         visualizer_candidates = st.number_input(
             "Visualizer candidates per round",
             min_value=1,
@@ -1552,7 +1538,7 @@ def _init_run_panel() -> Path:
                         visualizer_image_size=image_size,
                         visualizer_use_reference_images=use_visualizer_refs,
                         visualizer_reference_input_mode=interaction_mode,
-                        visualizer_enforce_specs=enforce_specs,
+                        visualizer_enforce_specs=False,
                         visualizer_candidates_per_round=int(visualizer_candidates),
                         reference_gallery_dir=ref_root,
                     )
@@ -1635,6 +1621,11 @@ def main() -> None:
     st.title("PaperBanana Chat-Bridge Manual UI")
     st.caption(
         "This UI does not alter pipeline logic. It only wraps the existing chat_bridge state machine."
+    )
+    st.info(
+        "Purpose: this project helps users who only have chat interfaces or text-only APIs. "
+        "It keeps PaperBanana text-stage logic intact and moves image generation to a manual "
+        "external step (generate -> upload -> continue iteration)."
     )
 
     text_api_cfg = _render_text_api_sidebar()

@@ -6,6 +6,7 @@
 - 文本阶段（Retriever / Planner / Stylist / Critic）可手动或通过 Text API 自动执行；
 - 可视化阶段（Visualizer）改为手动调用你自己的聊天模型或 Agent 出图，再上传图片回到流程；
 - 保留原始多阶段状态机与迭代机制，适合没有稳定图片 API 的环境。
+- 目标用户是只有聊天界面、或 API 仅支持文本而不支持图片生成的使用者。
 
 ## 2. 致谢与来源
 
@@ -16,21 +17,13 @@
 
 感谢这些项目为自动学术绘图提供了完整的多智能体流程框架。
 
-## 3. 发布与合规要点
-
-本仓库保留了 `LICENSE`（Apache-2.0）。发布到 GitHub 时建议做到：
-1. 保留原许可证文本与版权声明；
-2. 在 README/文档中明确说明“基于哪个项目改造”；
-3. 说明你做了哪些修改；
-4. 不提交他人的私有数据、密钥和未授权资源。
-
-## 4. 项目结构图
+## 3. 项目结构图
 
 下图为本项目流程结构图（由你提供）：
 
 ![Manual Visualizer Workflow](assets/visualizer_workflow_diagram.png)
 
-## 5. 工作流程（端到端）
+## 4. 工作流程（端到端）
 
 ### 阶段顺序
 
@@ -54,7 +47,7 @@
    - 上传回本系统进入下一阶段。
 5. Critic 给出 JSON（`critic_suggestions`, `revised_description`），状态机进入下一轮 visualizer，直到结束。
 
-## 6. 快速使用
+## 5. 快速使用
 
 1. 安装依赖：
 
@@ -71,6 +64,7 @@ streamlit run tools/chat_bridge/web_app.py
 ```
 
 3. 数据准备（与原项目一致）：
+- 下载地址（HuggingFace）：https://huggingface.co/datasets/dwzhu/PaperBananaBench
 - 将 `PaperBananaBench` 放在 `data/PaperBananaBench/`。
 
 4. 可选：生成内置参考图库（本地）：
@@ -78,11 +72,3 @@ streamlit run tools/chat_bridge/web_app.py
 ```bash
 python scripts/prepare_reference_gallery.py
 ```
-
-## 7. 安全与发布建议
-
-- 不要把真实 API Key 写入仓库文件；
-- `results/` 仅保留 `.gitkeep`，不要提交测试产物；
-- 提交前确保 `.gitignore` 生效；
-- 对外发布时在 README 保留来源链接与感谢说明。
-- 参考图库原图体积较大。若需提交，建议使用 Git LFS；若希望仓库轻量，保持本地存放即可。
