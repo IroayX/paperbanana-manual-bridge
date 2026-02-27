@@ -718,6 +718,7 @@ def _render_reference_gallery_panel(task_name: str) -> None:
         else DEFAULT_REF_ROOT
     )
     st.sidebar.caption(f"Active preferred root: `{active_ref}`")
+    st.sidebar.caption(f"Expected dataset path: `{DEFAULT_REF_ROOT}`")
     st.sidebar.caption(
         "Resolution fallback: explicit config -> work_dir/data -> project/data -> embedded/tools/chat_bridge."
     )
@@ -727,13 +728,39 @@ def _render_reference_gallery_panel(task_name: str) -> None:
     st.sidebar.write(f"Project data ready: {'Yes' if src_ready else 'No'}")
     st.sidebar.write(f"Embedded data ready: {'Yes' if embedded_ready else 'No'}")
 
+    if not src_ready and not embedded_ready:
+        st.sidebar.info(
+            "New user quick guide:\n"
+            "1) You can run immediately with retrieval_setting=none.\n"
+            "2) To use manual/auto retrieval, place PaperBananaBench at the expected dataset path."
+        )
+        if st.sidebar.button("Use Quick Start Defaults (no retrieval)", use_container_width=True):
+            st.session_state["init_retrieval_setting"] = "none"
+            st.session_state["init_exp_mode"] = "demo_full"
+            st.session_state["init_interaction_mode"] = "chat_only"
+            st.sidebar.success("Quick Start defaults applied in Create New Run.")
+
+    legacy_root = ROOT_DIR.parent / "PaperBanana" / "data" / "PaperBananaBench"
+    if (not src_ready) and legacy_root.exists():
+        st.sidebar.caption(f"Detected legacy dataset: `{legacy_root}`")
+        if st.sidebar.button("Copy Dataset From Legacy Folder", use_container_width=True):
+            try:
+                _copy_reference_gallery(legacy_root, DEFAULT_REF_ROOT)
+                st.sidebar.success(f"Copied dataset to: {DEFAULT_REF_ROOT}")
+                st.rerun()
+            except Exception as exc:
+                st.sidebar.error(f"Copy failed: {exc}")
+
     if st.sidebar.button("Embed Gallery Into Project", use_container_width=True):
         try:
             _copy_reference_gallery(DEFAULT_REF_ROOT, EMBEDDED_REF_ROOT)
             st.sidebar.success(f"Embedded gallery updated: {EMBEDDED_REF_ROOT}")
             st.rerun()
         except Exception as exc:
-            st.sidebar.error(f"Embed failed: {exc}")
+            st.sidebar.error(
+                "Embed failed. Ensure project dataset exists first.\n"
+                f"Details: {exc}"
+            )
 
 
 def _pick_preferred_reference_root(task_name: str) -> Path:
