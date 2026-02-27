@@ -1,0 +1,19 @@
+﻿.venv/
+__pycache__/
+*.pyc
+
+# Local private config
+configs/model_config.yaml
+
+# Runtime outputs
+results/*
+!results/.gitkeep
+
+# External dataset (follow original PaperBanana approach)
+data/*
+!data/.gitkeep
+
+# Optional embedded gallery (very large, keep out of Git by default)
+tools/chat_bridge/reference_gallery/*
+!tools/chat_bridge/reference_gallery/.gitkeep
+!tools/chat_bridge/reference_gallery/README.md
