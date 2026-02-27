@@ -6,6 +6,7 @@ import zipfile
 import re
 import base64
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,10 @@ import streamlit as st
 import json_repair
 import httpx
 from PIL import Image
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from tools.chat_bridge.session import (
     build_next_prompt,
@@ -41,7 +46,6 @@ except Exception:  # pragma: no cover
     Anthropic = None  # type: ignore
 
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_RUN_DIR = ROOT_DIR / "results" / "chat_bridge_web_run"
 EMBEDDED_REF_ROOT = ROOT_DIR / "tools" / "chat_bridge" / "reference_gallery" / "PaperBananaBench"
 DEFAULT_REF_ROOT = ROOT_DIR / "data" / "PaperBananaBench"
