@@ -1342,7 +1342,7 @@ def _init_run_panel() -> Path:
         for k, v in {
             "init_task_name": "diagram",
             "init_exp_mode": "demo_full",
-            "init_retrieval_setting": "auto",
+            "init_retrieval_setting": "none",
             "init_interaction_mode": "chat_only",
             "init_max_critic_rounds": 3,
             "init_visual_intent": "",
@@ -1407,7 +1407,7 @@ def _init_run_panel() -> Path:
             index=retrieval_options.index(
                 st.session_state["init_retrieval_setting"]
                 if st.session_state["init_retrieval_setting"] in retrieval_options
-                else "auto"
+                else "none"
             ),
             key="init_retrieval_setting",
         )
@@ -1493,25 +1493,41 @@ def _init_run_panel() -> Path:
             if not visual_intent.strip() or not content.strip():
                 st.error("Both content and caption are required.")
             else:
-                init_run(
-                    run_dir=run_dir,
-                    task_name=task_name,
-                    exp_mode=exp_mode,
-                    retrieval_setting=retrieval,
-                    max_critic_rounds=int(max_rounds),
-                    content=content,
-                    visual_intent=visual_intent,
-                    work_dir=ROOT_DIR,
-                    plot_visualizer_route="code",
-                    auto_chunk_size=30,
-                    visualizer_aspect_ratio=aspect_ratio,
-                    visualizer_image_size=image_size,
-                    visualizer_use_reference_images=use_visualizer_refs,
-                    visualizer_reference_input_mode=interaction_mode,
-                    visualizer_enforce_specs=enforce_specs,
-                    visualizer_candidates_per_round=int(visualizer_candidates),
-                    reference_gallery_dir=_pick_preferred_reference_root(task_name),
-                )
+                ref_root = _pick_preferred_reference_root(task_name)
+                if retrieval != "none":
+                    ref_json = ref_root / task_name / "ref.json"
+                    if not ref_json.exists():
+                        st.error(
+                            "Reference gallery is not ready for retrieval mode.\n"
+                            f"Missing file: {ref_json}\n\n"
+                            "Options:\n"
+                            "1) Switch `retrieval_setting` to `none` for quick start.\n"
+                            "2) Prepare `data/PaperBananaBench` and retry."
+                        )
+                        return run_dir
+                try:
+                    init_run(
+                        run_dir=run_dir,
+                        task_name=task_name,
+                        exp_mode=exp_mode,
+                        retrieval_setting=retrieval,
+                        max_critic_rounds=int(max_rounds),
+                        content=content,
+                        visual_intent=visual_intent,
+                        work_dir=ROOT_DIR,
+                        plot_visualizer_route="code",
+                        auto_chunk_size=30,
+                        visualizer_aspect_ratio=aspect_ratio,
+                        visualizer_image_size=image_size,
+                        visualizer_use_reference_images=use_visualizer_refs,
+                        visualizer_reference_input_mode=interaction_mode,
+                        visualizer_enforce_specs=enforce_specs,
+                        visualizer_candidates_per_round=int(visualizer_candidates),
+                        reference_gallery_dir=ref_root,
+                    )
+                except Exception as exc:
+                    st.error(f"Init run failed: {exc}")
+                    return run_dir
                 st.success(f"Initialized run: {run_dir}")
                 st.rerun()
     return run_dir
